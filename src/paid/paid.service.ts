@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {Model} from 'mongoose'
+import { timeSetting } from 'src/util/timeSetting';
 import { PaidProps } from './paid.model';
 @Injectable()
 export class PaidService {
     constructor(@InjectModel('paid') private paidModel: Model<PaidProps>) { }
 
     async insert(data:PaidProps) {        
-        const curDate = new Date(Date.now())
-        data.createdDate = curDate
-        data.updateDate = curDate
+        const splitDate = data.invoice_date.split('/')
+        const reportDate = timeSetting(splitDate)
+        data.createdDate = new Date(reportDate)
+        data.updateDate = new Date(reportDate)
         const newCustomer = new this.paidModel(data)
         const createdCustomer = new this.paidModel(newCustomer)
         return createdCustomer.save();
@@ -23,7 +25,10 @@ export class PaidService {
         const skip = (pageNumber - 1) * limits;
         const totalDocument = await this.paidModel.countDocuments(filterObject);
         const totalPage = Math.ceil(totalDocument / limits);
-        const data = await this.paidModel.find(filterObject).skip(skip).limit(limits).exec()
+        const sortDate = {
+            createdDate:-1
+        }
+        const data = await this.paidModel.find(filterObject).sort(sortDate).skip(skip).limit(limits).exec()
         const result = {
             data: data,
             totalDocument: totalDocument,

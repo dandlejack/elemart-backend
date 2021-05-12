@@ -2,14 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ReceivedProps } from './received.model';
 import {Model} from 'mongoose'
+import { timeSetting } from 'src/util/timeSetting';
 @Injectable()
 export class ReceivedService {
     constructor(@InjectModel('received') private receivedModel: Model<ReceivedProps>) { }
 
     async insert(data:ReceivedProps) {        
-        const curDate = new Date(Date.now())
-        data.createdDate = curDate
-        data.updateDate = curDate
+        const splitDate = data.invoice_date.split('/')
+        const reportDate = timeSetting(splitDate)
+        data.createdDate = new Date(reportDate)
+        data.updateDate = new Date(reportDate)
         const newReceivedInvoice = new this.receivedModel(data)
         const createdReceivedInvoice = new this.receivedModel(newReceivedInvoice)
         return createdReceivedInvoice.save();
@@ -23,7 +25,10 @@ export class ReceivedService {
         const skip = (pageNumber - 1) * limits;
         const totalDocument = await this.receivedModel.countDocuments(filterObject);
         const totalPage = Math.ceil(totalDocument / limits);
-        const data = await this.receivedModel.find(filterObject).skip(skip).limit(limits).exec()
+        const sortDate = {
+            createdDate:-1
+        }
+        const data = await this.receivedModel.find(filterObject).sort(sortDate).skip(skip).limit(limits).exec()
         const result = {
             data: data,
             totalDocument: totalDocument,

@@ -24,7 +24,8 @@ export class ProductService {
             const skip = (pageNumber - 1) * limits;
             const totalDocument = await this.productModel.countDocuments(filterObject);
             const totalPage = Math.ceil(totalDocument / limits);
-            const data = await this.productModel.find(filterObject).skip(skip).limit(limits).exec()
+            const sorts = {product_id:1}
+            const data = await this.productModel.find(filterObject).sort(sorts).skip(skip).exec()
             const result = {
                 data: data,
                 totalDocument: totalDocument,

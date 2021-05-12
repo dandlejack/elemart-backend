@@ -19,7 +19,9 @@ export class CustomerService {
     }
 
     async findAll(): Promise<Customer[]> {
-        return await this.customerModel.find().exec();
+        const sorts = {customer_name:1}
+        const result = await this.customerModel.find().sort(sorts).exec();
+        return result
     }
 
 
