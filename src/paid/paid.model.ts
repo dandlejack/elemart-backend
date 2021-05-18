@@ -14,6 +14,8 @@ export class Paid {
     @Prop()
     data_table: Array<Object>;
     @Prop()
+    paid_description: string;
+    @Prop()
     date: Date;
     @Prop()
     createdBy: string;
@@ -30,6 +32,7 @@ export interface PaidProps {
     invoice_date: string;
     customer_name: string;
     data_table: Array<Object>;
+    paid_description: string;
     date: Date;
     createdBy: string;
     updatedBy: string;

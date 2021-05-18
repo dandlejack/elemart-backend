@@ -7,13 +7,19 @@ import { PaidProps } from 'src/paid/paid.model';
 export class ProductService {
     constructor(@InjectModel('product') private productModel: Model<ProductProps>,@InjectModel('paid') private paidModel: Model<PaidProps>) { }
 
-    async insert(data:ProductProps) {        
-        const curDate = new Date(Date.now())
-        data.createdDate = curDate
-        data.updateDate = curDate
-        const newProduct = new this.productModel(data)
-        const createdProduct = new this.productModel(newProduct)
-        return createdProduct.save();
+    async insert(data:ProductProps) {
+        const duplicateCheck = await this.productModel.findOne({product_id:data.product_id}).exec()
+        if(duplicateCheck === null){
+            const curDate = new Date(Date.now())
+            data.createdDate = curDate
+            data.updateDate = curDate
+            const newProduct = new this.productModel(data)
+            const createdProduct = new this.productModel(newProduct)
+            return createdProduct.save();
+        }else{
+            return 'รหัสสินค้าซ้ำ'
+        }
+        
     }
 
     async findAll(req,res) {
@@ -25,7 +31,7 @@ export class ProductService {
             const totalDocument = await this.productModel.countDocuments(filterObject);
             const totalPage = Math.ceil(totalDocument / limits);
             const sorts = {product_id:1}
-            const data = await this.productModel.find(filterObject).sort(sorts).skip(skip).exec()
+            const data = await this.productModel.find(filterObject).sort(sorts).limit(limits).skip(skip).exec()
             const result = {
                 data: data,
                 totalDocument: totalDocument,

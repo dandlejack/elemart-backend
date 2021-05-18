@@ -13,6 +13,8 @@ export class Received {
     @Prop()
     data_table: Array<Object>;
     @Prop()
+    received_description: string;
+    @Prop()
     date: Date;
     @Prop()
     createdBy: string;
@@ -29,6 +31,7 @@ export interface ReceivedProps {
     invoice_date: string;
     seller: string;
     data_table: Array<Object>;
+    received_description: string;
     date: Date;
     createdBy: string;
     updatedBy: string;
