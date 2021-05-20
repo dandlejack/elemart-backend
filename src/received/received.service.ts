@@ -3,9 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ReceivedProps } from './received.model';
 import {Model} from 'mongoose'
 import { timeSetting } from 'src/util/timeSetting';
+import { ProductProps } from 'src/product/product.model';
 @Injectable()
 export class ReceivedService {
-    constructor(@InjectModel('received') private receivedModel: Model<ReceivedProps>) { }
+    constructor(@InjectModel('received') private receivedModel: Model<ReceivedProps>,@InjectModel('product') private productModel: Model<ProductProps>) { }
 
     async insert(data:ReceivedProps) {        
         const splitDate = data.invoice_date.split('/')
@@ -50,6 +51,24 @@ export class ReceivedService {
     }
 
     async deleteById(id: string) {
+        const storeProductFromReceived = []
+        const receivedResult = await this.receivedModel.find({_id:id})
+        receivedResult[0].data_table.map(data=>{
+            storeProductFromReceived.push(
+                {
+                    product_id:data.product_id,
+                    received_amount: data.received_amount
+                }
+            )
+        })
+        console.log(storeProductFromReceived)
+        storeProductFromReceived.map(async(data)=>{
+            const cur = -data.received_amount
+            await this.productModel.updateOne({product_id:data.product_id},{$inc:{
+                current_amount:cur
+            }})
+        })
+        const result = await this.productModel.updateMany({history_table:id},{$pull:{history_table:id}})
         await this.receivedModel.deleteOne({_id:id}).exec();
         return 'Delete Successful.'
     }

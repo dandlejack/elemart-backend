@@ -15,7 +15,11 @@ export class ProductController {
             const result = await this.productService.findAll(req,res)
             res.send(result);             
     }
-
+    @Get('/findAllWithoutParams')
+    async findAllWithoutParams(@Req() req: Request, @Res() res: Response){
+           const result = await this.productService.findAllWithoutParams(req,res)
+           res.send(result);             
+   }
     @Get('/:id')
     findById(@Param('id') id:string){
         const p = this.productService.findById(id)

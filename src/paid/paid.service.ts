@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {Model} from 'mongoose'
+import { ProductProps } from 'src/product/product.model';
 import { timeSetting } from 'src/util/timeSetting';
 import { PaidProps } from './paid.model';
 @Injectable()
 export class PaidService {
-    constructor(@InjectModel('paid') private paidModel: Model<PaidProps>) { }
+    constructor(@InjectModel('paid') private paidModel: Model<PaidProps>,@InjectModel('product') private productModel: Model<ProductProps>) { }
 
     async insert(data:PaidProps) {        
         const splitDate = data.invoice_date.split('/')
@@ -49,7 +50,25 @@ export class PaidService {
         return 'Update Successful.'
     }
 
+    
     async deleteById(id: string) {
+        const storeProductFromPaid = []
+        const paidResult = await this.paidModel.find({_id:id})
+        paidResult[0].data_table.map(data=>{
+            storeProductFromPaid.push(
+                {
+                    product_id:data.product_id,
+                    paid_amount: data.paid_amount
+                }
+            )
+        })
+        storeProductFromPaid.map(async(data)=>{
+            const cur = data.paid_amount
+            await this.productModel.updateOne({product_id:data.product_id},{$inc:{
+                current_amount:cur
+            }})
+        })
+        const result = await this.productModel.updateMany({history_table:id},{$pull:{history_table:id}})
         await this.paidModel.deleteOne({_id:id}).exec();
         return 'Delete Successful.'
     }

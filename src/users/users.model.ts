@@ -5,6 +5,8 @@ export type UsersDocument = Users & mongoose.Document
 @Schema()
 export class Users {
     @Prop()
+    fullname: string;
+    @Prop()
     username: string;
     @Prop()
     password: string;
@@ -17,6 +19,7 @@ export class Users {
 }
 export interface UsersProps {
     _id: string;
+    fullname: string;
     username:string;
     password:string;
     role:string
