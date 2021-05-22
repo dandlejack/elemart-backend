@@ -41,6 +41,30 @@ export class ProductService {
         };
         return result
     }
+
+    async findWithSearch(req, res) {
+        const params = req.query
+        const pageNumber = Number(params.pageNumber || "1");
+        const limits = Number(params.limitPage || '20')
+        const filterObject = req.query.filterObject && JSON.parse(req.query.filterObject as string) || {};
+        const skip = (pageNumber - 1) * limits;
+        const totalDocument = await this.productModel.countDocuments(filterObject);
+        const totalPage = Math.ceil(totalDocument / limits);
+        const sorts = { product_id: 1 }
+        const d = filterObject.product_id['$in'][0].replace(/['"]+/g, '')
+        const test = { product_id: { "$in": [/BTD0009/] } }
+        const data = await this.productModel.find(test).sort(sorts).limit(limits).skip(skip).exec()
+        // const data = await this.productModel.aggregate([match])
+        const result = {
+            data: data,
+            totalDocument: totalDocument,
+            pageNumber: pageNumber,
+            totalPage: totalPage,
+            message: "success"
+        };
+        return result
+    }
+
     async findAllWithoutParams(req, res) {
         const params = req.query
         const pageNumber = Number(params.pageNumber || "1");

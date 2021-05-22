@@ -15,6 +15,12 @@ export class ProductController {
             const result = await this.productService.findAll(req,res)
             res.send(result);             
     }
+    @Get('/findWithSearch')
+     async findWithSearch(@Req() req: Request, @Res() res: Response){
+            const result = await this.productService.findWithSearch(req,res)
+            res.send(result);             
+    }
+    
     @Get('/findAllWithoutParams')
     async findAllWithoutParams(@Req() req: Request, @Res() res: Response){
            const result = await this.productService.findAllWithoutParams(req,res)
