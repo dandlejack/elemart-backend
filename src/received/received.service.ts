@@ -8,7 +8,7 @@ import { ProductProps } from 'src/product/product.model';
 export class ReceivedService {
     constructor(@InjectModel('received') private receivedModel: Model<ReceivedProps>,@InjectModel('product') private productModel: Model<ProductProps>) { }
 
-    async insert(data:ReceivedProps) {        
+    async insert(data:ReceivedProps) {              
         const splitDate = data.invoice_date.split('/')
         const reportDate = timeSetting(splitDate)
         data.createdDate = new Date(reportDate)
