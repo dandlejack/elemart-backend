@@ -51,10 +51,7 @@ export class ProductService {
         const totalDocument = await this.productModel.countDocuments(filterObject);
         const totalPage = Math.ceil(totalDocument / limits);
         const sorts = { product_id: 1 }
-        const d = filterObject.product_id['$in'][0].replace(/['"]+/g, '')
-        const test = { product_id: { "$in": [/BTD0009/] } }
-        const data = await this.productModel.find(test).sort(sorts).limit(limits).skip(skip).exec()
-        // const data = await this.productModel.aggregate([match])
+        const data = await this.productModel.find(filterObject).sort(sorts).limit(limits).skip(skip).exec()
         const result = {
             data: data,
             totalDocument: totalDocument,
